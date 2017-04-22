@@ -576,7 +576,7 @@ ostream& operator<<(ostream& out, const BlueStore::Buffer& b)
 // Garbage Collector
 
 void BlueStore::GarbageCollector::process_protrusive_extents(
-  const BlueStore::ExtentMap& extent_map, 
+  const BlueStore::ExtentMap& extent_map,
   uint64_t start_offset,
   uint64_t end_offset,
   uint64_t start_touch_offset,
@@ -589,7 +589,7 @@ void BlueStore::GarbageCollector::process_protrusive_extents(
   uint64_t lookup_end_offset = ROUND_UP_TO(end_offset, min_alloc_size);
 
   dout(30) << __func__ << " (hex): [" << std::hex
-           << lookup_start_offset << ", " << lookup_end_offset 
+           << lookup_start_offset << ", " << lookup_end_offset
            << ")" << std::dec << dendl;
 
   for (auto it = extent_map.seek_lextent(lookup_start_offset);
@@ -607,7 +607,7 @@ void BlueStore::GarbageCollector::process_protrusive_extents(
 
     if (it->logical_offset >=start_touch_offset &&
         it->logical_end() <= end_touch_offset) {
-      // Process extents within the range affected by 
+      // Process extents within the range affected by
       // the current write request.
       // Need to take into account if existing extents
       // can be merged with them (uncompressed case)
@@ -635,7 +635,7 @@ void BlueStore::GarbageCollector::process_protrusive_extents(
       int adjust =
        (used_alloc_unit && used_alloc_unit == alloc_unit_start) ? 0 : 1;
       bi.expected_allocations += alloc_unit_end - alloc_unit_start + adjust;
-      dout(30) << __func__  << " expected_allocations=" 
+      dout(30) << __func__  << " expected_allocations="
                << bi.expected_allocations << " end_au:"
                << alloc_unit_end << dendl;
 
@@ -650,7 +650,7 @@ void BlueStore::GarbageCollector::process_protrusive_extents(
                << std::dec << dendl;
       // NOTE: we can't move specific blob to resulting GC list here
       // when reference counter == 0 since subsequent extents might
-      // decrement its expected_allocation. 
+      // decrement its expected_allocation.
       // Hence need to enumerate all the extents first.
       if (!bi.collect_candidate) {
         bi.first_lextent = it;
@@ -744,7 +744,7 @@ int64_t BlueStore::GarbageCollector::estimate(
     }
   }
   dout(30) << __func__ << " gc range(hex): [" << std::hex
-           << gc_start_offset << ", " << gc_end_offset 
+           << gc_start_offset << ", " << gc_end_offset
            << ")" << std::dec << dendl;
 
   // enumerate preceeding extents to check if they reference affected blobs
@@ -1354,7 +1354,7 @@ int BlueStore::BufferSpace::_discard(Cache* cache, uint32_t offset, uint32_t len
 }
 
 void BlueStore::BufferSpace::read(
-  Cache* cache, 
+  Cache* cache,
   uint32_t offset,
   uint32_t length,
   BlueStore::ready_regions_t& res,
@@ -1630,7 +1630,7 @@ void BlueStore::OnodeSpace::dump(CephContext *cct, int lvl)
 ostream& operator<<(ostream& out, const BlueStore::SharedBlob& sb)
 {
   out << "SharedBlob(" << &sb;
-  
+
   if (sb.loaded) {
     out << " loaded " << *sb.persistent;
   } else {
@@ -1656,7 +1656,7 @@ BlueStore::SharedBlob::~SharedBlob()
     get_cache()->rm_blob();
   }
   if (loaded && persistent) {
-    delete persistent; 
+    delete persistent;
   }
 }
 
@@ -1778,7 +1778,7 @@ void BlueStore::Blob::get_ref(
   uint32_t offset,
   uint32_t length)
 {
-  // Caller has to initialize Blob's logical length prior to increment 
+  // Caller has to initialize Blob's logical length prior to increment
   // references.  Otherwise one is neither unable to determine required
   // amount of counters in case of per-au tracking nor obtain min_release_size
   // for single counter mode.
@@ -1811,7 +1811,7 @@ bool BlueStore::Blob::put_ref(
   auto cct = coll->store->cct;
   dout(20) << __func__ << " 0x" << std::hex << offset << "~" << length
            << std::dec << " " << *this << dendl;
-  
+
   bool empty = used_in_blob.put(
     offset,
     length,
@@ -2831,7 +2831,7 @@ int BlueStore::ExtentMap::compress_extent_map(
 }
 
 void BlueStore::ExtentMap::punch_hole(
-  CollectionRef &c, 
+  CollectionRef &c,
   uint64_t offset,
   uint64_t length,
   old_extent_map_t *old_extents)
@@ -2846,7 +2846,7 @@ void BlueStore::ExtentMap::punch_hole(
       if (p->logical_end() > end) {
 	// split and deref middle
 	uint64_t front = offset - p->logical_offset;
-	OldExtent* oe = OldExtent::create(c, offset, p->blob_offset + front, 
+	OldExtent* oe = OldExtent::create(c, offset, p->blob_offset + front,
 					  length, p->blob);
 	old_extents->push_back(*oe);
 	add(end,
@@ -2896,7 +2896,7 @@ BlueStore::Extent *BlueStore::ExtentMap::set_lextent(
   // We need to have completely initialized Blob to increment its ref counters.
   assert(b->get_blob().get_logical_length() != 0);
 
-  // Do get_ref prior to punch_hole to prevent from putting reused blob into 
+  // Do get_ref prior to punch_hole to prevent from putting reused blob into
   // old_extents list if we overwre the blob totally
   // This might happen during WAL overwrite.
   b->get_ref(onode->c, blob_offset, length);
@@ -2972,7 +2972,7 @@ void BlueStore::Onode::flush()
 
 // =======================================================
 // WriteContext
- 
+
 /// Checks for writes to the same pextent within a blob
 bool BlueStore::WriteContext::has_conflict(
   BlobRef b,
@@ -2994,7 +2994,7 @@ bool BlueStore::WriteContext::has_conflict(
   }
   return false;
 }
- 
+
 // =======================================================
 
 // DeferredBatch
@@ -3686,7 +3686,7 @@ void BlueStore::_set_compression()
            << dendl;
     }
   }
- 
+
   dout(10) << __func__ << " mode " << Compressor::get_comp_mode_name(comp_mode)
 	   << " alg " << (compressor ? compressor->get_type_name() : "(none)")
 	   << dendl;
@@ -3765,7 +3765,7 @@ int BlueStore::_set_cache_sizes()
       cache_meta_ratio = cache_meta_ratio + cache_kv_ratio - cache_kv_max_ratio;
       cache_kv_ratio = cache_kv_max_ratio;
     }
-  }  
+  }
 
   cache_data_ratio =
     (double)1.0 - (double)cache_meta_ratio - (double)cache_kv_ratio;
@@ -4228,7 +4228,7 @@ int BlueStore::_open_fm(bool create)
       bl.append(freelist_type);
       t->set(PREFIX_SUPER, "freelist_type", bl);
     }
-    // being able to allocate in units less than bdev block size 
+    // being able to allocate in units less than bdev block size
     // seems to be a bad idea.
     assert( cct->_conf->bdev_block_size <= (int64_t)min_alloc_size);
     fm->create(bdev->get_size(), (int64_t)min_alloc_size, t);
@@ -4570,7 +4570,7 @@ int BlueStore::_open_db(bool create)
     if (::stat(bfn.c_str(), &st) == 0) {
       r = bluefs->add_block_device(BlueFS::BDEV_DB, bfn);
       if (r < 0) {
-        derr << __func__ << " add block device(" << bfn << ") returned: " 
+        derr << __func__ << " add block device(" << bfn << ") returned: "
              << cpp_strerror(r) << dendl;
         goto free_bluefs;
       }
@@ -4610,7 +4610,7 @@ int BlueStore::_open_db(bool create)
     }
     r = bluefs->add_block_device(bluefs_shared_bdev, bfn);
     if (r < 0) {
-      derr << __func__ << " add block device(" << bfn << ") returned: " 
+      derr << __func__ << " add block device(" << bfn << ") returned: "
 	   << cpp_strerror(r) << dendl;
       goto free_bluefs;
     }
@@ -4642,9 +4642,9 @@ int BlueStore::_open_db(bool create)
     if (::stat(bfn.c_str(), &st) == 0) {
       r = bluefs->add_block_device(BlueFS::BDEV_WAL, bfn);
       if (r < 0) {
-        derr << __func__ << " add block device(" << bfn << ") returned: " 
+        derr << __func__ << " add block device(" << bfn << ") returned: "
 	     << cpp_strerror(r) << dendl;
-        goto free_bluefs;			
+        goto free_bluefs;
       }
 
       if (bluefs->bdev_support_label(BlueFS::BDEV_WAL)) {
@@ -5024,7 +5024,7 @@ int BlueStore::_open_collections(int *errors)
         derr << __func__ << " failed to decode cnode, key:"
              << pretty_binary_string(it->key()) << dendl;
         return -EIO;
-      }   
+      }
       dout(20) << __func__ << " opened " << cid << " " << c << dendl;
       coll_map[cid] = c;
     } else {
@@ -5860,7 +5860,7 @@ int BlueStore::_fsck(bool deep, bool repair)
           ref.init(l, min_release_size);
         }
 	ref.get(
-	  l.blob_offset, 
+	  l.blob_offset,
 	  l.length);
 	++num_extents;
 	if (blob.has_unused()) {
@@ -5934,7 +5934,7 @@ int BlueStore::_fsck(bool deep, bool repair)
 	}
 	if (blob.is_compressed()) {
 	  expected_statfs.compressed += blob.get_compressed_payload_length();
-	  expected_statfs.compressed_original += 
+	  expected_statfs.compressed_original +=
 	    i.first->get_referenced_bytes();
 	}
 	if (blob.is_shared()) {
@@ -6230,7 +6230,7 @@ int BlueStore::statfs(struct store_statfs_t *buf)
 
   {
     std::lock_guard<std::mutex> l(vstatfs_lock);
-    
+
     buf->allocated = vstatfs.allocated();
     buf->stored = vstatfs.stored();
     buf->compressed = vstatfs.compressed();
@@ -6610,7 +6610,7 @@ int BlueStore::_do_read(
   }
 
   // read raw blob data.  use aio if we have >1 blobs to read.
-  start = ceph_clock_now(); // for the sake of simplicity 
+  start = ceph_clock_now(); // for the sake of simplicity
                                     // measure the whole block below.
                                     // The error isn't that much...
   vector<bufferlist> compressed_blob_bls;
@@ -8268,17 +8268,17 @@ void BlueStore::_txc_finish(TransContext *txc)
 
 void BlueStore::_txc_release_alloc(TransContext *txc)
 {
-  interval_set<uint64_t> bulk_release_extents;
   // it's expected we're called with lazy_release_lock already taken!
-  if (!cct->_conf->bluestore_debug_no_reuse_blocks) {
-    dout(10) << __func__ << " " << txc << " " << txc->released << dendl;
-    // interval_set seems to be too costly for inserting things in
-    // bstore_kv_final. We could serialize in simpler format and perform
-    // the merge separately, maybe even in a dedicated thread.
-    bulk_release_extents.insert(txc->released);
+  if (likely(!cct->_conf->bluestore_debug_no_reuse_blocks)) {
+    for (interval_set<uint64_t>::iterator p = txc->released.begin();
+	 p != txc->released.end();
+	 ++p) {
+      bdev->discard(p.get_start(), p.get_len());
+    }
+    dout(10) << __func__ << " " << txc << " " << std::hex
+             << txc->released << std::dec << dendl;
+    alloc->release(txc->released);
   }
-
-  alloc->release(bulk_release_extents);
   txc->allocated.clear();
   txc->released.clear();
 }
@@ -9771,10 +9771,10 @@ void BlueStore::_do_write_small(
 	  // do_alloc_write().
 	  if (!wctx->has_conflict(b,
 				  offset0,
-				  offset0 + alloc_len, 
+				  offset0 + alloc_len,
 				  min_alloc_size)) {
 
-	    // we can't reuse pad_head/pad_tail since they might be truncated 
+	    // we can't reuse pad_head/pad_tail since they might be truncated
 	    // due to existent extents
 	    uint64_t b_off = offset - bstart;
 	    uint64_t b_off0 = b_off;
@@ -9817,7 +9817,7 @@ void BlueStore::_do_write_small(
 	// do_alloc_write().
 	if (!wctx->has_conflict(b,
 				offset0,
-				offset0 + alloc_len, 
+				offset0 + alloc_len,
 				min_alloc_size)) {
 
 	  uint64_t chunk_size = b->get_blob().get_chunk_size(block_size);
@@ -9836,18 +9836,18 @@ void BlueStore::_do_write_small(
 	  logger->inc(l_bluestore_write_small_unused);
 	  return;
 	}
-      } 
+      }
       if (prev_ep != begin) {
 	--prev_ep;
 	any_change = true;
       } else {
 	prev_ep = end; // to avoid useless first extent re-check
       }
-    } // if (prev_ep != end && prev_ep->logical_offset >= min_off) 
+    } // if (prev_ep != end && prev_ep->logical_offset >= min_off)
   } while (any_change);
 
   // new blob.
-  
+
   BlobRef b = c->new_blob();
   uint64_t b_off = P2PHASE(offset, alloc_len);
   uint64_t b_off0 = b_off;
