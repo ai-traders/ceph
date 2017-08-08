@@ -25,8 +25,6 @@
 
 class KernelDevice : public BlockDevice {
   int fd_direct, fd_buffered;
-  uint64_t size;
-  uint64_t block_size;
   std::string path;
   FS *fs;
   bool aio, dio;

@@ -27,8 +27,6 @@
 class PMEMDevice : public BlockDevice {
   int fd;
   char *addr; //the address of mmap
-  uint64_t size;
-  uint64_t block_size;
   std::string path;
 
   Mutex debug_lock;
