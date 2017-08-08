@@ -103,6 +103,8 @@ private:
   std::atomic_int ioc_reap_count = {0};
 
 protected:
+  uint64_t size;
+  uint64_t block_size;
   bool rotational = true;
   aio_callback_t aio_callback;
   void *aio_callback_priv;
@@ -124,8 +126,8 @@ public:
 
   virtual void aio_submit(IOContext *ioc) = 0;
 
-  virtual uint64_t get_size() const = 0;
-  virtual uint64_t get_block_size() const = 0;
+  uint64_t get_size() const { return size; }
+  uint64_t get_block_size() const { return block_size; }
 
   virtual int collect_metadata(const std::string& prefix, std::map<std::string,std::string> *pm) const = 0;
 
