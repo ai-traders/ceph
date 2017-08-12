@@ -96,6 +96,7 @@ public:
 class BlockDevice {
 public:
   CephContext* cct;
+  typedef void (*aio_callback_t)(void *handle, void *aio);
 private:
   std::mutex ioc_reap_lock;
   std::vector<IOContext*> ioc_reap_queue;
@@ -103,11 +104,18 @@ private:
 
 protected:
   bool rotational = true;
+  aio_callback_t aio_callback;
+  void *aio_callback_priv;
 
 public:
-  BlockDevice(CephContext* cct) : cct(cct) {}
+  BlockDevice(CephContext* cct, aio_callback_t cb, void *cbpriv)
+  : cct(cct),
+    size(0),
+    block_size(0),
+    aio_callback(cb),
+    aio_callback_priv(cbpriv)
+ {}
   virtual ~BlockDevice() = default;
-  typedef void (*aio_callback_t)(void *handle, void *aio);
 
   static BlockDevice *create(
     CephContext* cct, const std::string& path, aio_callback_t cb, void *cbpriv, aio_callback_t d_cb, void *d_cbpriv);
