@@ -1,7 +1,7 @@
 // -*- mode:C++; tab-width:8; c-basic-offset:2; indent-tabs-mode:t -*-
 // vim: ts=8 sw=2 smarttab
 
-#include "boost/algorithm/string.hpp" 
+#include "boost/algorithm/string.hpp"
 #include "BlueFS.h"
 
 #include "common/debug.h"
@@ -741,7 +741,7 @@ int BlueFS::_replay(bool noop)
 	    assert(q != dir_map.end());
 	    map<string,FileRef>::iterator r = q->second->file_map.find(filename);
 	    assert(r != q->second->file_map.end());
-            assert(r->second->refs > 0); 
+            assert(r->second->refs > 0);
 	    --r->second->refs;
 	    q->second->file_map.erase(r);
 	  }
@@ -1478,6 +1478,14 @@ int BlueFS::_flush_and_sync_log(std::unique_lock<std::mutex>& l,
              << " already >= out seq " << seq
              << ", we lost a race against another log flush, done" << dendl;
   }
+
+  for (unsigned i = 0; i < to_release.size(); ++i) {
+    if (!to_release[i].empty()) {
+      /* OK, now we have the guarantee alloc[i] won't be null. */
+      alloc[i]->release(to_release[i]);
+    }
+  }
+
   _update_logger_stats();
 
   return 0;
@@ -1836,16 +1844,16 @@ int BlueFS::_allocate(uint8_t id, uint64_t len,
   int r = -ENOSPC;
   int64_t alloc_len = 0;
   AllocExtentVector extents;
-  
+
   if (alloc[id]) {
     r = alloc[id]->reserve(left);
   }
-  
+
   if (r == 0) {
     uint64_t hint = 0;
     if (!ev->empty()) {
       hint = ev->back().end();
-    }   
+    }
     extents.reserve(4);  // 4 should be (more than) enough for most allocations
     alloc_len = alloc[id]->allocate(left, min_alloc_size, hint, &extents);
   }
@@ -1873,8 +1881,8 @@ int BlueFS::_allocate(uint8_t id, uint64_t len,
     else
       derr << __func__ << " failed to allocate 0x" << std::hex << left
 	   << " on bdev " << (int)id << ", dne" << std::dec << dendl;
-    if (alloc[id]) 
-      alloc[id]->dump(); 
+    if (alloc[id])
+      alloc[id]->dump();
     return -ENOSPC;
   }
 
@@ -1888,7 +1896,7 @@ int BlueFS::_allocate(uint8_t id, uint64_t len,
       ev->push_back(e);
     }
   }
-   
+
   return 0;
 }
 
