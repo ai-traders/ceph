@@ -1903,11 +1903,13 @@ int BlueFS::_allocate(uint8_t id, uint64_t len,
     alloc_len = alloc[id]->allocate(left, min_alloc_size, hint, &extents);
   }
   if (r < 0 || (alloc_len < (int64_t)left)) {
-    if (r == 0) {
+		if (r == 0) {
+      interval_set<uint64_t> to_release;
       alloc[id]->unreserve(left - alloc_len);
       for (auto& p : extents) {
-        alloc[id]->release(p.offset, p.length);
+        to_release.insert(p.offset, p.length);
       }
+      alloc[id]->release(to_release);
     }
     if (id != BDEV_SLOW) {
       if (bdev[id]) {
@@ -1987,10 +1989,6 @@ void BlueFS::sync_metadata()
       _compact_log_async(l);
     }
   }
-
-  utime_t end = ceph_clock_now();
-  utime_t dur = end - start;
-  dout(10) << __func__ << " done in " << dur << dendl;
 }
 
 int BlueFS::open_for_write(
