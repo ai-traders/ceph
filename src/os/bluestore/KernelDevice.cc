@@ -33,11 +33,11 @@
 #undef dout_prefix
 #define dout_prefix *_dout << "bdev(" << this << " " << path << ") "
 
-KernelDevice::KernelDevice(CephContext* cct, aio_callback_t cb, void *cbpriv)
+KernelDevice::KernelDevice(CephContext* cct, aio_callback_t cb, void *cbpriv, aio_callback_t d_cb, void *d_cbpriv)
   : BlockDevice(cct, cb, cbpriv),
     fd_direct(-1),
     fd_buffered(-1),
-    fs(NULL), aio(false), dio(false),
+    aio(false), dio(false),
     debug_lock("KernelDevice::debug_lock"),
     aio_queue(cct->_conf->bdev_aio_max_queue_depth),
     discard_callback(d_cb),

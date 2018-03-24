@@ -101,13 +101,6 @@ public:
   void aio_submit(IOContext *ioc) override;
   void discard_drain() override;
 
-  uint64_t get_size() const override {
-    return size;
-  }
-  uint64_t get_block_size() const override {
-    return block_size;
-  }
-
   int collect_metadata(const std::string& prefix, map<std::string,std::string> *pm) const override;
 
   int read(uint64_t off, uint64_t len, bufferlist *pbl,
