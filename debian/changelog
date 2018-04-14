@@ -1,3 +1,9 @@
+ceph (12.2.4-2) stable; urgency=medium
+
+  * Built with debase image
+
+ -- Tomasz Setkowski <tom@ai-traders.com>  Sat, 14 Apr 2018 15:13:00 +0000
+
 ceph (12.2.4-1) stable; urgency=medium
 
   * New upstream release
